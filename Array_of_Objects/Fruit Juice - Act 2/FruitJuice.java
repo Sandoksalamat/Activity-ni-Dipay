@@ -3,8 +3,10 @@ import java.util.Scanner;
 public class FruitJuice {
     static final Scanner input = new Scanner(System.in);
     static int[] quantities;
+    static String[] rawQuantities;
     static int recordCount;
     static int storageSize;
+    static int[] sweetnessLevel;
     static boolean[] processedFruit;
     static Fruit[] f;
     static int pIndex;
@@ -13,12 +15,13 @@ public class FruitJuice {
         System.out.println("*Clanker Noise*");
         for (int i = seconds; i > 0; i--) {
             System.out.println("Time Remaining: " + i);
-        }
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            System.out.println("Timer Interrupted");
-            Thread.currentThread().interrupt();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                System.out.println("Timer Interrupted");
+                Thread.currentThread().interrupt();
+            }
         }
     }
     public static void main(String[] args) {
@@ -47,6 +50,8 @@ public class FruitJuice {
                     f = new Fruit[storageSize];
                     quantities = new int[storageSize];
                     processedFruit = new boolean[storageSize];
+                    rawQuantities = new String[storageSize];
+                    sweetnessLevel = new int[storageSize];
                     recordCount = 0;
 
                     System.out.println("Fruit Storage created with " + storageSize + " slots.");
@@ -89,6 +94,8 @@ public class FruitJuice {
                     if (newFruit != null) {
                         f[recordCount] = newFruit;
                         quantities[recordCount] = 0;
+                        rawQuantities[recordCount] = null;
+                        sweetnessLevel[recordCount] = newFruit.getSweetnessLevel();
                         recordCount++;
                         System.out.println(newFruit.name + " added at index " + (recordCount - 1) + ".");
                     }
@@ -111,18 +118,20 @@ public class FruitJuice {
                     }
 
                     System.out.print("Enter Quantity: ");
-                    String quantityInput = input.next();
+                    rawQuantities[qIndex] = input.next();
 
                     try {
-                        int quantity = Integer.parseInt(quantityInput);
+                        int quantity = Integer.parseInt(rawQuantities[qIndex]);
                         if (quantity <= 0) {
                             System.out.println("Quantity must be greater than zero.");
+                            rawQuantities[qIndex] = null;
                             break;
                         }
                         quantities[qIndex] = quantity;
                         System.out.println("Quantity " + quantity + " recorded for index " + qIndex + ".");
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid input. Whole numbers only.");
+                        rawQuantities[qIndex] = null;
                     }
                     break;
 
@@ -172,7 +181,7 @@ public class FruitJuice {
                         }
                         
                         if (processedFruit[i]) {
-                            System.out.println("Fruit at slot " + pIndex + " already processed.");
+                            System.out.println("Fruit at slot " + i + " already processed.");
                             continue;
                         } else {
                             countdown(3);
@@ -230,6 +239,8 @@ public class FruitJuice {
 
                     for (int i = 0; i < recordCount; i++) {
                         if (f[i] == null) continue;
+
+                        System.out.println("Index " + i + ": " + f[i].name + " | Sweetness: " + sweetnessLevel[i] + "/10");
 
                         if (quantities[i] > 0) {
                             processed++;

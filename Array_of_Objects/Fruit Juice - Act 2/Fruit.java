@@ -1,4 +1,4 @@
-class Fruit {
+abstract class Fruit {
     String name;
     String baseFlavor;
 
@@ -9,5 +9,9 @@ class Fruit {
 
     public void describeFruit() {
         System.out.println("this a fruit.");
+    }
+
+    public int getSweetnessLevel() {
+        return 1;
     }
 }
