@@ -5,7 +5,9 @@ public class FruitJuice {
     static int[] quantities;
     static int recordCount;
     static int storageSize;
+    static boolean[] processedFruit;
     static Fruit[] f;
+    static int pIndex;
     
     static void countdown(int seconds) {
         System.out.println("*Clanker Noise*");
@@ -44,6 +46,7 @@ public class FruitJuice {
 
                     f = new Fruit[storageSize];
                     quantities = new int[storageSize];
+                    processedFruit = new boolean[storageSize];
                     recordCount = 0;
 
                     System.out.println("Fruit Storage created with " + storageSize + " slots.");
@@ -132,7 +135,7 @@ public class FruitJuice {
                     }
 
                     System.out.print("Enter Index (0 to " + (recordCount - 1) + "): ");
-                    int pIndex = input.nextInt();
+                    pIndex = input.nextInt();
 
                     if (pIndex < 0 || pIndex >= recordCount) {
                         System.out.println("Invalid index.");
@@ -144,9 +147,15 @@ public class FruitJuice {
                         break;
                     }
 
-                    countdown(3);
-                    DrinkMaker.makeFruitJuice(f[pIndex]);
-                    break;
+                    if (processedFruit[pIndex]) {
+                        System.out.println("Fruit at slot " + pIndex + " already processed.");
+                        break;
+                    } else {
+                        countdown(3);
+                        DrinkMaker.makeFruitJuice(f[pIndex]);
+                        processedFruit[pIndex] = true;
+                        break;
+                    }
 
                 case 5:
                     System.out.println("== Process Fruit (All) ==");
@@ -162,9 +171,14 @@ public class FruitJuice {
                             continue;
                         }
                         
-                        countdown(3);
-                        DrinkMaker.makeFruitJuice(f[i]);
-                        
+                        if (processedFruit[i]) {
+                            System.out.println("Fruit at slot " + pIndex + " already processed.");
+                            continue;
+                        } else {
+                            countdown(3);
+                            DrinkMaker.makeFruitJuice(f[i]);
+                            processedFruit[i] = true;
+                        }
                     }
                     break;
 
