@@ -10,10 +10,11 @@ public class FallingStar {
     static int lives = 3;
     static int fallSpeed = 3;
     static boolean running = false;
-
+    
+    static String runningState = "Paused";
     static JLabel scoreLabel;
     static JLabel livesLabel;
-    static JLabel runningLabel;
+    static JLabel runningLabel = new JLabel("Status: Paused");
 
     static class GameCanvas extends JPanel {
         GameCanvas() {
@@ -27,14 +28,28 @@ public class FallingStar {
             // Star Drawing
             g.setColor(Color.YELLOW);
             int[] starXPoints = {
-                starX, starX + 10, starX + 30, starX + 15,
-                starX + 20, starX, starX - 20, starX - 15,
-                starX - 30, starX - 10
+                starX, 
+                starX + 10, // 2
+                starX + 30, // 3
+                starX + 15, // 4
+                starX + 20, // 5
+                starX, // 6
+                starX - 20, // 7
+                starX - 15, // 8
+                starX - 30, // 9
+                starX - 10
             };
             int[] starYPoints = {
-                starY, starY + 20, starY + 20, starY + 35,
-                starY + 55, starY + 42, starY + 55,
-                starY + 35, starY + 20, starY + 20
+                starY, 
+                starY + 20, // 2 
+                starY + 20, // 3
+                starY + 35, // 4
+                starY + 55, // 5
+                starY + 42, // 6
+                starY + 55, // 7
+                starY + 35, // 8
+                starY + 20, // 9
+                starY + 20
             };
             g.fillPolygon(starXPoints, starYPoints, 10);
 
@@ -61,6 +76,10 @@ public class FallingStar {
         JPanel menuPanel = new JPanel();
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
 
+        JLabel titleGame = new JLabel();
+        titleGame.setText("Catch the Star");
+        titleGame.setFont(new Font("Arial", Font.PLAIN, 50));
+        
         JButton startGame = new JButton("Play");
         JButton exitGame = new JButton("Exit");
 
@@ -72,7 +91,10 @@ public class FallingStar {
 
         startGame.setAlignmentX(Component.CENTER_ALIGNMENT);
         exitGame.setAlignmentX(Component.CENTER_ALIGNMENT);
-
+        titleGame.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        menuPanel.add(Box.createVerticalGlue());
+        menuPanel.add(titleGame);
         menuPanel.add(Box.createVerticalGlue());
         menuPanel.add(startGame);
         menuPanel.add(Box.createVerticalStrut(10));
@@ -89,9 +111,9 @@ public class FallingStar {
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
 
-        scoreLabel   = new JLabel("Score: " + score);
-        livesLabel   = new JLabel("Lives: " + lives);
-        runningLabel = new JLabel("Playing: " + running);
+        scoreLabel = new JLabel("Score: " + score);
+        livesLabel = new JLabel("Lives: " + lives);
+        runningLabel = new JLabel("Status: " + runningState);
         statusBar.add(scoreLabel);
         statusBar.add(livesLabel);
         statusBar.add(runningLabel);
@@ -171,16 +193,49 @@ public class FallingStar {
         hintKey.setFont(new Font("Arial", Font.PLAIN, 11));
         hintSpace.setFont(new Font("Arial", Font.PLAIN, 11));
 
+        
+        // Defeat Screen
+        JPanel losePanel = new JPanel(new BorderLayout());
+        losePanel.setLayout(new BoxLayout(losePanel, BoxLayout.Y_AXIS));
+        
+        JLabel loseText = new JLabel("YOU LOSE");
+        JLabel loseScore = new JLabel("Score: " + score);
+
+        JPanel loseBtnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+
+        JButton retryBtn = new JButton("Try Again");
+        JButton exitBtn = new JButton("Exit");
+
+        loseBtnRow.add(retryBtn);
+        loseBtnRow.add(exitBtn);
+        loseBtnRow.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        Dimension loseBtns = new Dimension(100,50);
+        retryBtn.setPreferredSize(loseBtns);
+        retryBtn.setMaximumSize(loseBtns);
+        exitBtn.setPreferredSize(loseBtns);
+        exitBtn.setMaximumSize(loseBtns);
+
+        loseText.setFont(new Font("Arial", Font.PLAIN, 50));
+        loseText.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        loseScore.setAlignmentX(Component.CENTER_ALIGNMENT);
+        loseScore.setHorizontalAlignment(JLabel.CENTER);
+        loseScore.setFont(new Font("Arial", Font.PLAIN, 20)); 
+
+        losePanel.add(Box.createVerticalGlue());
+        losePanel.add(loseText);
+        losePanel.add(Box.createVerticalStrut(10));
+        losePanel.add(loseScore);
+        losePanel.add(Box.createVerticalStrut(20));
+        losePanel.add(loseBtnRow);
+        losePanel.add(Box.createVerticalGlue());
+
         // Button Events
         btnStartSmall.addActionListener(e -> {
             running = true;
-            runningLabel.setText("Playing: " + running);
-            frame.requestFocusInWindow();
-        });
-
-        btnPauseSmall.addActionListener(e -> {
-            running = !running;
-            runningLabel.setText("Playing: " + running);
+            runningState = "Playing";
+            runningLabel.setText("Status: " + runningState);
             frame.requestFocusInWindow();
         });
 
@@ -192,10 +247,11 @@ public class FallingStar {
             else if (diffHard.isSelected()) { lives = 1; fallSpeed = 7; }
             scoreLabel.setText("Score: " + score);
             livesLabel.setText("Lives: " + lives);
-            runningLabel.setText("Playing: " + running);
+            runningLabel.setText("Status: " + runningState);
             resetStar(gameCanvas);
             gameCanvas.repaint();
             frame.requestFocusInWindow();
+            /*System.out.println("Player Reset");*/ // For Proving Purposes only. 
         });
 
         controlPanel.add(Box.createVerticalStrut(5));
@@ -231,6 +287,7 @@ public class FallingStar {
 
         cardPanel.add(menuPanel, "menu");
         cardPanel.add(gamePanel, "game");
+        cardPanel.add(losePanel, "lose");
 
         //Game Timer
         Timer gameTimer = new Timer(16, e -> {
@@ -253,17 +310,12 @@ public class FallingStar {
 
                 if (lives <= 0) {
                     running = false;
-                    runningLabel.setText("Playing: " + running);
-                    JOptionPane.showMessageDialog(frame,
-                        "Game Over! Score: " + score,
-                        "Game Over",
-                        JOptionPane.INFORMATION_MESSAGE);
-                    score = 0;
-                    scoreLabel.setText("Score: " + score);
-                    cardLayout.show(cardPanel, "menu");
+                    runningState = "Paused";
+                    loseScore.setText("Score: " + score);
+                    cardLayout.show(cardPanel, "lose");
                 }
             }
-
+            /*System.out.println("Timer Ticked");*/ //For Proving Purposes Only.
             gameCanvas.repaint();
         });
 
@@ -276,28 +328,81 @@ public class FallingStar {
             running = false;
             scoreLabel.setText("Score: " + score);
             livesLabel.setText("Lives: " + lives);
-            runningLabel.setText("Playing: " + running);
+            runningLabel.setText("Status: " + runningState);
             diffEasy.setSelected(true);
             resetStar(null);
             cardLayout.show(cardPanel, "game");
             frame.requestFocusInWindow();
+            /*System.out.println("Player Started");*/ // For Proving Purposes only. 
+        });
+
+        retryBtn.addActionListener(e -> {
+            score = 0;
+            lives = 3;
+            fallSpeed = 3;
+            running = false;
+            runningState = "Paused";
+            scoreLabel.setText("Score: " + score);
+            livesLabel.setText("Lives: " + lives);
+            runningLabel.setText("Status: " + runningState);
+            diffEasy.setSelected(true);
+            resetStar(gameCanvas);
+            cardLayout.show(cardPanel, "game");
+            frame.requestFocusInWindow();
+            /*System.out.println("Player Retried");*/ // For Proving Purposes only. 
+        }); 
+
+        btnPauseSmall.addActionListener(e -> {
+            toggleRunningState(runningLabel);
+            frame.requestFocusInWindow();
+        });
+
+        diffEasy.addActionListener(e -> { 
+            fallSpeed = 3; lives = 3; 
+            resetGame(scoreLabel, livesLabel, runningLabel, gameCanvas); 
+            /*System.out.println("Player Easy");*/ // For Proving Purposes only. 
+        });
+
+        diffMid.addActionListener(e ->  { 
+            fallSpeed = 5; 
+            lives = 2; 
+            resetGame(scoreLabel, livesLabel, runningLabel, gameCanvas); 
+            /*System.out.println("Player Medium");*/ // For Proving Purposes only. 
+        });
+
+        diffHard.addActionListener(e -> { 
+            fallSpeed = 7; 
+            lives = 1; 
+            resetGame(scoreLabel, livesLabel, runningLabel, gameCanvas); 
+            /*System.out.println("Player Hard");*/ // For Proving Purposes only. 
         });
 
         exitGame.addActionListener(e -> System.exit(0));
+        exitBtn.addActionListener(e -> System.exit(0));
 
         // Key Listeners
         frame.addKeyListener(new KeyListener() {
             public void keyPressed(KeyEvent e) {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_SPACE:
-                        running = !running;
-                        runningLabel.setText("Playing: " + running);
+                        toggleRunningState(runningLabel);
                         break;
+
                     case KeyEvent.VK_LEFT:
-                        basketX -= 20;
-                        break;
+                        if (running) {
+                            basketX -= 35;
+                            /*System.out.println("Player moving to left.");*/
+                        } else {
+                            /*System.out.println("Player Paused.");*/
+                        }
+                        break;  
                     case KeyEvent.VK_RIGHT:
-                        basketX += 20;
+                        if (running) {
+                            basketX += 35;
+                            /*System.out.println("Player moving to right.");*/
+                        } else {
+                            /*System.out.println("Player Paused.");*/
+                        }
                         break;
                     default:
                         break;
@@ -323,5 +428,29 @@ public class FallingStar {
         } else {
             starX = 400;
         }
+    }
+
+    static void resetGame(JLabel scoreLabel, JLabel livesLabel, JLabel runningLabel, GameCanvas canvas) {
+        score = 0;
+        running = false;
+        runningState = "Paused";
+        scoreLabel.setText("Score: " + score);
+        livesLabel.setText("Lives: " + lives);
+        runningLabel.setText("Status: " + runningState);
+        resetStar(canvas);
+        canvas.repaint();
+    }
+
+    static void toggleRunningState(JLabel runningLabel) {
+        running = !running;
+
+        if (running) {
+            runningState = "Playing";
+        } else {
+            runningState = "Paused";
+        }
+
+        runningLabel.setText("Status: " + runningState);
+        /*System.out.println("Player has: " + runningState);*/
     }
 }
